@@ -5,8 +5,8 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn import svm
 from sklearn.naive_bayes import GaussianNB
 from sklearn.ensemble import GradientBoostingClassifier
-l = requests.get('http://api.huobi.com/staticmarket/ltc_kline_005_json.js').json()
-b = requests.get('http://api.huobi.com/staticmarket/btc_kline_005_json.js').json()
+l = requests.get('http://api.huobi.com/staticmarket/ltc_kline_001_json.js').json()
+b = requests.get('http://api.huobi.com/staticmarket/btc_kline_001_json.js').json()
 
 data=[]
 
@@ -24,7 +24,7 @@ for i in range(len(l)):
 y=[item[0] for item in data]
 x=[item[1:] for item in data]
 
-train_size = 252
+train_size = 200
 md = LogisticRegression()
 md = md.fit(x[:train_size],y[:train_size])
 p = md.predict(x[train_size:])
@@ -37,13 +37,18 @@ rf = RandomForestClassifier(n_estimators=10)
 rf = rf.fit(x[:train_size],y[:train_size])
 pr = rf.predict(x[train_size:])
 
-sv = svm.SVC()
+sv = svm.SVC(kernel='sigmoid')
 sv.fit(x[:train_size],y[:train_size])
 ps = sv.predict(x[train_size:])
 
 gnb = GaussianNB()
 gnb = gnb.fit(x[:train_size],y[:train_size])
 pg = gnb.predict(x[train_size:])
+
+from sklearn.neighbors import KNeighborsClassifier
+nbrs = KNeighborsClassifier()
+nbrs = nbrs.fit(x[:train_size],y[:train_size])
+pn = nbrs.predict(x[train_size:])
 
 #gbrt =  GradientBoostingRegressor(n_estimators=100, max_depth=10)
 #gbrt = gbrt.fit(x[:train_size],y[:train_size])
@@ -92,4 +97,7 @@ print get_precision(y[train_size:], pg)
 print 'GBDT:'
 print list(pgt)
 print get_precision(y[train_size:], pgt)
+print 'KN:'
+print list(pn)
+print get_precision(y[train_size:], pn)
 
